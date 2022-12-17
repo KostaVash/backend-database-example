@@ -106,7 +106,7 @@ class DB_Manager:
             self.db.delete(entity.key)
 
     def undo_redo_helper(self, func, name, value):
-        if func == "set_entity" :
+        if func == "set_entity":
             self.set_entity(name, value, False)
         else:
             self.unset_entity(name, False)
