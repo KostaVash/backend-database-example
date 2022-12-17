@@ -22,13 +22,13 @@ class DB_Manager:
         :param flag: if pass it to UndoRedoManager
         :return: True
         """
+        if flag:
+            prev_value = self.get_entity(name)
+            self.urm.write("set_entity", name, value, prev_value)
         entity = datastore.Entity(key=self.db.key('item', name))
         entity.update(
             {'name': name,
              'value': value})
-        if flag:
-            prev_value = self.get_entity(name)
-            self.urm.write(self.set_entity, name, value, prev_value)
         self.db.put(entity)
         return True
 
@@ -55,7 +55,7 @@ class DB_Manager:
         """
         if flag:
             prev_value = self.get_entity(name)
-            self.urm.write(self.unset_entity, name, 'None', prev_value)
+            self.urm.write("unset_entity", name, 'None', prev_value)
         ans = self.set_entity(name, 'None', False)
         if ans:
             return self.get_entity(name)
@@ -82,7 +82,7 @@ class DB_Manager:
         func, name, value = self.urm.get_undo()
         if not func:
             return None, None
-        func(name, value, False)
+        self.undo_redo_helper(func, name, value)
         return name, value
 
     def do_redo(self):
@@ -93,7 +93,7 @@ class DB_Manager:
         func, name, value = self.urm.get_redo()
         if not func:
             return None, None
-        func(name, value, False)
+        self.undo_redo_helper(func, name, value)
         return name, value
 
     def end(self):
@@ -104,3 +104,9 @@ class DB_Manager:
         entities = list(query.fetch())
         for entity in entities:
             self.db.delete(entity.key)
+
+    def undo_redo_helper(self, func, name, value):
+        if func == "set_entity" :
+            self.set_entity(name, value, False)
+        else:
+            self.unset_entity(name, False)
