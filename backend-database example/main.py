@@ -88,7 +88,7 @@ def numequalto_value():
 
 @app.route('/undo')
 def do_undo():
-    name, value = db_manager.do_undo
+    name, value = db_manager.do_undo()
     if name:
         return '''
             <h1>undo: object: {}  with the value: {} </h1>'''.format(name, value)
